@@ -1,0 +1,12 @@
+version: "2"
+
+services:
+  cache:
+    build: .
+    ports:
+     - "2222:22"
+     - "80:80"
+    privileged: true
+    command: 
+      -cconsole 
+      -xstart=/httpd.sh
