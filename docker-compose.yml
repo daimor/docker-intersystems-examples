@@ -1,0 +1,15 @@
+version: "2.0"
+
+services: 
+  ensemble:
+    image: ensemble
+    ports:
+      - 57772:57772
+
+  httpd-csp:
+    image: httpd-csp
+    build: ./httpd-csp/
+    ports:
+      - 80:80
+    links:
+      - ensemble
