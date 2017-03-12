@@ -1,0 +1,8 @@
+version: '3.0'
+
+services: 
+  ensemble:
+    image: simple-ensemble
+    build: .
+    ports:
+      - 57772:57772

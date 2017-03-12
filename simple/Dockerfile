@@ -1,0 +1,49 @@
+FROM centos:6
+
+MAINTAINER Dmitry Maslennikov <mrdaimor@gmail.com>
+
+# update OS + dependencies & run Caché silent instal
+RUN yum -y update \
+ && yum -y install which tar hostname net-tools wget \
+ && yum -y clean all \ 
+ && ln -sf /etc/locatime /usr/share/zoneinfo/Europe/Prague
+
+ARG password="Qwerty@12"
+ARG cache=ensemble-2016.2.1.803.0
+
+ENV TMP_INSTALL_DIR=/tmp/distrib
+
+# vars for Caché silent install
+ENV ISC_PACKAGE_INSTANCENAME="ENSEMBLE" \
+    ISC_PACKAGE_INSTALLDIR="/opt/ensemble/" \
+    ISC_PACKAGE_UNICODE="Y" \
+    ISC_PACKAGE_CLIENT_COMPONENTS="" \
+    ISC_PACKAGE_INITIAL_SECURITY="Normal" \
+    ISC_PACKAGE_USER_PASSWORD=${password} 
+
+# set-up and install Caché from distrib_tmp dir 
+WORKDIR ${TMP_INSTALL_DIR}
+
+ADD $cache-lnxrhx64.tar.gz .
+
+# cache distributive
+RUN ./$cache-lnxrhx64/cinstall_silent \
+ && ccontrol stop $ISC_PACKAGE_INSTANCENAME quietly \
+# Caché container main process PID 1 (https://github.com/zrml/ccontainermain)
+ && curl -L https://github.com/daimor/ccontainermain/raw/master/distrib/linux/ccontainermain -o /ccontainermain \
+ && chmod +x /ccontainermain \
+ && rm -rf $TMP_INSTALL_DIR 
+
+# # Workaround for an overlayfs bug which prevents Cache from starting with <PROTECT> errors
+# COPY ccontrol-wrapper.sh /usr/bin/
+# RUN cd /usr/bin \
+#  && rm ccontrol \
+#  && mv ccontrol-wrapper.sh ccontrol \
+#  && chmod 555 ccontrol
+
+WORKDIR ${ISC_PACKAGE_INSTALLDIR}
+
+# TCP sockets that can be accessed if user wants to (see 'docker run -p' flag)
+EXPOSE 57772 1972
+
+ENTRYPOINT ["/ccontainermain", "-cconsole", "-i", "ensemble"]
