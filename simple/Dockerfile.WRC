@@ -10,6 +10,8 @@ RUN yum -y update \
 
 ARG password="Qwerty@12"
 ARG cache=ensemble-2016.2.1.803.1
+ARG WRC_USERNAME=”username”
+ARG WRC_PASSWORD=”password”
 
 ENV TMP_INSTALL_DIR=/tmp/distrib
 
@@ -24,10 +26,11 @@ ENV ISC_PACKAGE_INSTANCENAME="ENSEMBLE" \
 # set-up and install Caché from distrib_tmp dir 
 WORKDIR ${TMP_INSTALL_DIR}
 
-ADD $cache-lnxrhx64.tar.gz .
-
 # cache distributive
-RUN ./$cache-lnxrhx64/cinstall_silent \
+RUN wget -qO /dev/null --keep-session-cookies --save-cookies /dev/stdout --post-data="UserName=$WRC_USERNAME&Password=$WRC_PASSWORD" 'https://login.intersystems.com/login/SSO.UI.Login.cls?referrer=https%253A//wrc.intersystems.com/wrc/login.csp' \
+ | wget -O - --load-cookies /dev/stdin "https://wrc.intersystems.com/wrc/WRC.StreamServer.cls?FILE=/wrc/distrib/$cache-lnxrhx64.tar.gz" \
+ | tar xvfzC - . \
+ && ./$cache-lnxrhx64/cinstall_silent \
  && ccontrol stop $ISC_PACKAGE_INSTANCENAME quietly \
 # Caché container main process PID 1 (https://github.com/zrml/ccontainermain)
  && curl -L https://github.com/daimor/ccontainermain/raw/master/distrib/linux/ccontainermain -o /ccontainermain \
