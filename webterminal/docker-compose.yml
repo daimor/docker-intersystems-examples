@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  terminal:
+    build: .
+    ports:
+      - 57772:57772
+
