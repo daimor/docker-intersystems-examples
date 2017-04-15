@@ -1,0 +1,7 @@
+version: '3'
+
+services:
+  deepseeweb:
+    build: .
+    ports:
+      - 57775:57772

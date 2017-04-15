@@ -1,0 +1,7 @@
+// install charset for CSP files as recommended
+set ^%SYS("CSP","DefaultFileCharset")="utf-8"
+// Load Installer
+do $system.OBJ.Load("/tmp/deps/Installer.cls","ck")
+// Setup
+do ##class(DSWMDX2JSON.Installer).setup(.vars,3)
+halt
