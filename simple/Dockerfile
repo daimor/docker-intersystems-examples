@@ -32,6 +32,9 @@ RUN ./$cache-lnxrhx64/cinstall_silent \
 # Caché container main process PID 1 (https://github.com/zrml/ccontainermain)
  && curl -L https://github.com/daimor/ccontainermain/raw/master/distrib/linux/ccontainermain -o /ccontainermain \
  && chmod +x /ccontainermain \
+ # csession wrapper
+ && printf "#!/bin/bash\n/usr/bin/csession $ISC_PACKAGE_INSTANCENAME $@\\n" > /usr/local/bin/csession \
+ && chmod 777 /usr/local/bin/csession \
  && rm -rf $TMP_INSTALL_DIR 
 
 # # Workaround for an overlayfs bug which prevents Cache from starting with <PROTECT> errors
