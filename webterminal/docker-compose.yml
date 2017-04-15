@@ -5,4 +5,3 @@ services:
     build: .
     ports:
       - 57772:57772
-
