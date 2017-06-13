@@ -1,7 +1,7 @@
-FROM daimor/intersystems-ensemble:latest
+FROM daimor/intersystems-cache:2017.1
 
 # version DeepSeeWeb
-ARG DSW_VERSION=2.0.22
+ARG DSW_VERSION=2.1.4
 
 COPY cache.key /opt/ensemble/mgr/
 
@@ -21,16 +21,16 @@ RUN mkdir -p /tmp/deps \
  && curl -L -q https://github.com/intersystems-ru/DeepSeeWeb/releases/download/${DSW_VERSION}/DSW.Installer.${DSW_VERSION}.xml -o deepseeweb.xml \
 
  # Start Caché
- && ccontrol start ensemble \
+ && ccontrol start $ISC_PACKAGE_INSTANCENAME \
 
  # add login and password for csession in our installer script
  && sed -i "1s/^/_SYSTEM\n$ISC_PACKAGE_USER_PASSWORD\n/" /tmp/install.scr \
 
  # run install script
- && csession ensemble < /tmp/install.scr \
+ && csession $ISC_PACKAGE_INSTANCENAME < /tmp/install.scr \
 
  # Sstop Cache
- && ccontrol stop ensemble quietly \
+ && ccontrol stop $ISC_PACKAGE_INSTANCENAME quietly \
 
  # clean temporary folder
  && rm -rf /tmp/deps
